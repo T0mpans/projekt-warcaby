@@ -87,3 +87,4 @@ function isValidMode(){
     }
     return false;
 }
+//czarna dziura
