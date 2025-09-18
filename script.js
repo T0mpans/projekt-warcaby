@@ -96,7 +96,42 @@ function movePiece(piece, row, col){
     const moveCol = col - oldCol;
 
     const isCapture = Math.abs(moveRow) === 2 && Math.abs(moveCol) === 2;
-    
+    if(isCapture){
+        const middleRow = oldRow + moveRow / 2;
+        const middleCol = oldCol + moveCol / 2;
+        const middleSquare = document.querySelector(`[data-row='${middleRow}' [data-col='${middleCol}']]`);
+        if(middleSquare.firstChild && middleSquare.firstChild.classList.contains('piece') && !middleSquare.firstChild.classList.contains(currentPlayer)){
+            middleSquare.removeChild(middleSquare.firstChild);
+            currentPlayer === 'white' ? blackPieces-- : whitePieces--;
+            performMove(piece, targetSquare, row, col);
+
+            const furtherCaptures = getAvailableCapturesForPiece(piece);
+            if(furtherCaptures.length > 0){
+                isMultiCapture = true;
+                selectPiece(piece);
+                return;
+            }
+        }
+    } else{
+        performMove(piece, targetSquare, row, col);
+    }
+    if(!isMultiCapture){
+        endTurn();
+    }else{
+        isMultiCapture = false;
+    }
+}
+function performMove(piece, targetSquare, row, col){
+    targetSquare.appendChild(piece);
+    piece.dataset.row = row;
+    piece.dataset.col = col;
+    piece.classList.remove('selected');
+    selectPiece = null;
+
+    if((row === 0 && currentPlayer === 'white') || (row === 7 && currentPlayer === 'black')){
+        piece.classList.add('king');
+    }
+    checkWinCondition();
 }
 //czarna dziura
 //ciemny
