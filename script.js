@@ -9,13 +9,19 @@ let whitePieces = 12;
 let blackPieces = 12;
 let isMultiCapture = false;
 
+let czas = document.getElementById("czas").value;
+let whiteTime = czas;
+let blackTime = czas;
+document.getElementById("wynik").innerHTML=whiteTime;
+let timerInterval = null;
+
+
 function createBoard(){
     board.innerHTML='';
     for(let row = 0; row < rows; row++){
         for(let col = 0; col < columns; col++){
             const square = document.createElement('div');
             square.classList.add('square');
-            // square.classList.add(row+col) %2 === 0 ? 'white' : 'black';
             square.classList.add((row + col) % 2 === 0 ? 'white' : 'black');
 
             square.dataset.row = row;
@@ -35,22 +41,6 @@ function createBoard(){
         }
     }
 }
-// function handleSquareClick(e){
-//     const square = e.target.classList.contains('square') ? e.target : e.target.parentElement;
-//     const row = parseInt(square.dataset.row);
-//     const col = parseInt(square.dataset.col);
-
-//     if(selectedPiece){
-//         if(selectedPiece === square.firstChild){
-//             selectedPiece.classList.remove('selected');
-//             selectedPiece = null;
-//         }else if(!square.firstChild && isValidMode(selectedPiece, row, col)){
-//             movePiece(selectedPiece, row, col);
-//         }
-//     }else if(square.firstChild && square.firstChild.classList.contains('piece') && square.firstChild.classList.contains(currentPlayer)){
-//         selectPiece(square.firstChild);
-//     }
-// }
 
 function handleSquareClick(e){
     const square = e.target.classList.contains('square') ? e.target : e.target.parentElement;
@@ -70,14 +60,6 @@ function handleSquareClick(e){
     }
 }
 
-
-// tPiece(piece){
-//     if(selectedPiece){
-//         selectedPiece.classList.remove('selected');
-//     }
-//     piece.classList.add('selected');
-//     selectedPiece = piece;
-// }
 function selectPiece(piece){
     if(selectedPiece){
         selectedPiece.classList.remove('selected');
