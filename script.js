@@ -15,7 +15,9 @@ function createBoard(){
         for(let col = 0; col < columns; col++){
             const square = document.createElement('div');
             square.classList.add('square');
-            square.classList.add(row+col) %2 === 0 ? 'white' : 'black';
+            // square.classList.add(row+col) %2 === 0 ? 'white' : 'black';
+            square.classList.add((row + col) % 2 === 0 ? 'white' : 'black');
+
             square.dataset.row = row;
             square.dataset.col = col;
             board.appendChild(square);
@@ -58,7 +60,7 @@ function selectPiece(piece){
     selectedPiece = piece;
 }
 
-function isValidMode(){
+function isValidMode(piece, row, col){
     const oldRow = parseInt(piece.dataset.row);
     const oldCol = parseInt(piece.dataset.col);
     const moveRow = row - oldRow;
@@ -67,10 +69,10 @@ function isValidMode(){
     const captureMoves = getAvailableCaptures(currentPlayer);
     const isCapture = Math.abs(moveRow) === 2  && Math.abs(moveCol) === 2;
 
-    if(captureMoves.lenth > 0 && !isCapture){
+    if(captureMoves.length > 0 && !isCapture){
         return false;
     }
-    if(!piece.classList.contains('king')){
+    if(!piece.classList.contains('king') && !isMultiCapture){
         if((currentPlayer === 'white' && moveRow > 0) || (currentPlayer === 'black' && moveRow < 0)){
             return false;
         }
@@ -79,7 +81,7 @@ function isValidMode(){
         const middleRow = oldRow + moveRow / 2;
         const middleCol = oldCol + moveCol / 2;
         const middleSquare = document.querySelector(`[data-row='${middleRow}'][data-col='${middleCol}']`);
-        if(middleSquare.firstChild && middleSquare.firstChild.classList.contains('piece') && !middleSquare.firstChild.class.contains(currentPlayer)){
+        if(middleSquare.firstChild && middleSquare.firstChild.classList.contains('piece') && !middleSquare.firstChild.classList.contains(currentPlayer)){
             return true;
         }
     }else if(Math.abs(moveRow) === 1 && Math.abs(moveCol) === 1){
@@ -99,7 +101,8 @@ function movePiece(piece, row, col){
     if(isCapture){
         const middleRow = oldRow + moveRow / 2;
         const middleCol = oldCol + moveCol / 2;
-        const middleSquare = document.querySelector(`[data-row='${middleRow}' [data-col='${middleCol}']]`);
+        const middleSquare = document.querySelector(`[data-row='${middleRow}'][data-col='${middleCol}']`);
+
         if(middleSquare.firstChild && middleSquare.firstChild.classList.contains('piece') && !middleSquare.firstChild.classList.contains(currentPlayer)){
             middleSquare.removeChild(middleSquare.firstChild);
             currentPlayer === 'white' ? blackPieces-- : whitePieces--;
@@ -110,23 +113,21 @@ function movePiece(piece, row, col){
                 isMultiCapture = true;
                 selectPiece(piece);
                 return;
+            }else{
+                isMultiCapture = false;
             }
         }
     } else{
         performMove(piece, targetSquare, row, col);
     }
-    if(!isMultiCapture){
-        endTurn();
-    }else{
-        isMultiCapture = false;
-    }
+    endTurn();
 }
 function performMove(piece, targetSquare, row, col){
     targetSquare.appendChild(piece);
     piece.dataset.row = row;
     piece.dataset.col = col;
     piece.classList.remove('selected');
-    selectPiece = null;
+    selectedPiece = null;
 
     if((row === 0 && currentPlayer === 'white') || (row === 7 && currentPlayer === 'black')){
         piece.classList.add('king');
