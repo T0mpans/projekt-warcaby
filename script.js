@@ -7,14 +7,9 @@ let selectedPiece = null;
 let currentPlayer = 'white';
 let whitePieces = 12;
 let blackPieces = 12;
+let whiteMaterial = 0;
+let blackMaterial = 0;
 let isMultiCapture = false;
-
-let czas = document.getElementById("czas").value;
-let whiteTime = czas;
-let blackTime = czas;
-document.getElementById("wynik").innerHTML=whiteTime;
-let timerInterval = null;
-
 
 function createBoard(){
     board.innerHTML='';
@@ -114,10 +109,24 @@ function movePiece(piece, row, col){
         const middleCol = oldCol + moveCol / 2;
         const middleSquare = document.querySelector(`[data-row='${middleRow}'][data-col='${middleCol}']`);
 
+        // if(middleSquare.firstChild && middleSquare.firstChild.classList.contains('piece') && !middleSquare.firstChild.classList.contains(currentPlayer)){
+        //     middleSquare.removeChild(middleSquare.firstChild);
+        //     currentPlayer === 'white' ? blackPieces-- : whitePieces--;
+        //     performMove(piece, targetSquare, row, col);
         if(middleSquare.firstChild && middleSquare.firstChild.classList.contains('piece') && !middleSquare.firstChild.classList.contains(currentPlayer)){
             middleSquare.removeChild(middleSquare.firstChild);
-            currentPlayer === 'white' ? blackPieces-- : whitePieces--;
+        
+            if(currentPlayer === 'white'){
+                blackPieces--;
+                whiteMaterial++; // +1 za zbicie
+            } else {
+                whitePieces--;
+                blackMaterial++; // +1 za zbicie
+            }
+        
+            updateMaterialScore(); // odśwież wynik
             performMove(piece, targetSquare, row, col);
+        
 
             const furtherCaptures = getAvailableCapturesForPiece(piece);
             if(furtherCaptures.length > 0){
@@ -206,6 +215,10 @@ function endGame(){
 function restartGame(){
     whitePieces = 12;
     blackPieces = 12;
+    whiteMaterial = 0;
+    blackMaterial = 0;
+    updateMaterialScore();
+
     selectedPiece = null;
     currentPlayer = 'white';
     game_status.innerText = '';
@@ -239,4 +252,9 @@ function clearHighlights(){
     document.querySelectorAll('.highlight').forEach(sq => {
         sq.classList.remove('highlight');
     });
+}
+
+function updateMaterialScore(){
+    document.getElementById("material_score").innerText =
+        `Białe: ${whiteMaterial} | Czarne: ${blackMaterial}`;
 }
