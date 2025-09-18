@@ -65,3 +65,6 @@ h1{
     cursor: pointer;
     display: none;
 }
+.highlight {
+    background-color: rgba(0, 255, 0, 0.4);
+}

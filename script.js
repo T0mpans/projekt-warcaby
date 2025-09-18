@@ -35,6 +35,23 @@ function createBoard(){
         }
     }
 }
+// function handleSquareClick(e){
+//     const square = e.target.classList.contains('square') ? e.target : e.target.parentElement;
+//     const row = parseInt(square.dataset.row);
+//     const col = parseInt(square.dataset.col);
+
+//     if(selectedPiece){
+//         if(selectedPiece === square.firstChild){
+//             selectedPiece.classList.remove('selected');
+//             selectedPiece = null;
+//         }else if(!square.firstChild && isValidMode(selectedPiece, row, col)){
+//             movePiece(selectedPiece, row, col);
+//         }
+//     }else if(square.firstChild && square.firstChild.classList.contains('piece') && square.firstChild.classList.contains(currentPlayer)){
+//         selectPiece(square.firstChild);
+//     }
+// }
+
 function handleSquareClick(e){
     const square = e.target.classList.contains('square') ? e.target : e.target.parentElement;
     const row = parseInt(square.dataset.row);
@@ -44,20 +61,32 @@ function handleSquareClick(e){
         if(selectedPiece === square.firstChild){
             selectedPiece.classList.remove('selected');
             selectedPiece = null;
-        }else if(!square.firstChild && isValidMode(selectedPiece, row, col)){
+            clearHighlights();
+        } else if(!square.firstChild && isValidMode(selectedPiece, row, col)){
             movePiece(selectedPiece, row, col);
         }
-    }else if(square.firstChild && square.firstChild.classList.contains('piece') && square.firstChild.classList.contains(currentPlayer)){
+    } else if(square.firstChild && square.firstChild.classList.contains('piece') && square.firstChild.classList.contains(currentPlayer)){
         selectPiece(square.firstChild);
     }
 }
 
+
+// tPiece(piece){
+//     if(selectedPiece){
+//         selectedPiece.classList.remove('selected');
+//     }
+//     piece.classList.add('selected');
+//     selectedPiece = piece;
+// }
 function selectPiece(piece){
     if(selectedPiece){
         selectedPiece.classList.remove('selected');
+        clearHighlights();
     }
     piece.classList.add('selected');
     selectedPiece = piece;
+
+    highlightMoves(piece);
 }
 
 function isValidMode(piece, row, col){
@@ -121,6 +150,7 @@ function movePiece(piece, row, col){
         performMove(piece, targetSquare, row, col);
     }
     endTurn();
+    clearHighlights();
 }
 function performMove(piece, targetSquare, row, col){
     targetSquare.appendChild(piece);
@@ -207,3 +237,24 @@ function restartGame(){
 restart_button.addEventListener('click', restartGame);
 createBoard();
 updateGameStatus();
+
+//dodatkowe funkcje (highlighty)
+function highlightMoves(piece){
+    const row = parseInt(piece.dataset.row);
+    const col = parseInt(piece.dataset.col);
+
+    for(let r = 0; r < rows; r++){
+        for(let c = 0; c < columns; c++){
+            if(isValidMode(piece, r, c)){
+                const square = document.querySelector(`[data-row='${r}'][data-col='${c}']`);
+                square.classList.add('highlight');
+            }
+        }
+    }
+}
+
+function clearHighlights(){
+    document.querySelectorAll('.highlight').forEach(sq => {
+        sq.classList.remove('highlight');
+    });
+}
