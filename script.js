@@ -87,5 +87,16 @@ function isValidMode(){
     }
     return false;
 }
+
+function movePiece(piece, row, col){
+    const oldRow = parseInt(piece.dataset.row);
+    const oldCol = parseInt(piece.dataset.col);
+    const targetSquare = document.querySelector(`[data-row='${row}'][data-col='${col}']`);
+    const moveRow = row - oldRow;
+    const moveCol = col - oldCol;
+
+    const isCapture = Math.abs(moveRow) === 2 && Math.abs(moveCol) === 2;
+    
+}
 //czarna dziura
 //ciemny
