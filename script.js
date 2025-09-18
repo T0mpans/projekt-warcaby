@@ -166,3 +166,43 @@ function getAvailableCapturesForPiece(piece){
     });
     return captures;
 }
+
+function checkWinCondition(){
+    if(whitePieces === 0){
+        game_status.innerText = "Wygrana czarnych";
+        endGame();
+        return true;
+    }else if(blackPieces === 0){
+        game_status.innerText="Wygrana białych";
+        endGame();
+        return true;
+    }
+    return false;
+}
+function endTurn(){
+    currentPlayer = currentPlayer === 'white' ? 'black':'white';
+    updateGameStatus();
+}
+function updateGameStatus(){
+    game_status.innerText = `${currentPlayer.charAt(0).toUpperCase() + currentPlayer.slice(1)}kolejka`
+}
+function endGame(){
+    restart_button.style.display = 'block';
+    board.style.pointerEvents = 'none';
+}
+function restartGame(){
+    whitePieces = 12;
+    blackPieces = 12;
+    selectedPiece = null;
+    currentPlayer = 'white';
+    game_status.innerText = '';
+    restart_button.style.display = 'none';
+    board.style.pointerEvents = 'auto';
+    createBoard();
+    updateGameStatus();
+    isMultiCapture = false;
+}
+
+restart_button.addEventListener('click', restartGame);
+createBoard();
+updateGameStatus();
