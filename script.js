@@ -133,5 +133,36 @@ function performMove(piece, targetSquare, row, col){
     }
     checkWinCondition();
 }
-//czarna dziura
-//ciemny
+
+function getAvailableCaptures(player){
+    let captures = [];
+    const pieces = document.querySelectorAll(`.piece.${player}`);
+    pieces.forEach(piece => {
+        captures = captures.concat(getAvailableCapturesForPiece(piece));
+    });
+    return captures;
+}
+
+function getAvailableCapturesForPiece(piece){
+    const row = parseInt(piece.dataset.row);
+    const col = parseInt(piece.dataset.col);
+    const directions = [
+        {rowDir: 1, colDir:1},
+        {rowDir: 1, colDir:-1},
+        {rowDir: -1, colDir:1},
+        {rowDir: -1, colDir:-1}
+    ];
+    const captures = [];
+    directions.forEach(direction =>{
+        const targetRow = row + 2 * direction.rowDir;
+        const targetCol = col + 2 * direction.colDir;
+        const middleRow = row + direction.rowDir;
+        const middleCol = col + direction.colDir;
+        const targetSquare = document.querySelector(`[data-row='${targetRow}'][data-col='${targetCol}']`);
+        const middleSquare = document.querySelector(`[data-row='${middleRow}'][data-col='${middleCol}']`);
+        if(targetSquare && middleSquare && !targetSquare.firstChild && middleSquare.firstChild && middleSquare.firstChild.classList.contains('piece') && !middleSquare.firstChild.classList.contains(currentPlayer)){
+            captures.push({piece, targetRow, targetCol});
+        }
+    });
+    return captures;
+}
