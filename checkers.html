@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkers Game</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #f0f0f0;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(8, 60px);
+      grid-template-rows: repeat(8, 60px);
+      border: 2px solid #333;
+    }
+    .cell {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .black {
+      background-color: #769656;
+    }
+    .white {
+      background-color: #eeeed2;
+    }
+    .piece {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+    .red {
+      background-color: red;
+    }
+    .black-piece {
+      background-color: black;
+    }
+    .selected {
+      outline: 3px solid yellow;
+    }
+    .king {
+      border: 3px solid gold;
+    }
+  </style>
+</head>
+<body>
+  <div class="board" id="board"></div>
+
+  <script>
+    const board = document.getElementById('board');
+    let selectedPiece = null;
+    let turn = 'red';
+
+    function createBoard() {
+      board.innerHTML = '';
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const cell = document.createElement('div');
+          cell.classList.add('cell');
+          const isBlack = (row + col) % 2 === 1;
+          cell.classList.add(isBlack ? 'black' : 'white');
+          cell.dataset.row = row;
+          cell.dataset.col = col;
+
+          if (isBlack && row < 3) addPiece(cell, 'black-piece');
+          if (isBlack && row > 4) addPiece(cell, 'red');
+
+          cell.addEventListener('click', onCellClick);
+          board.appendChild(cell);
+        }
+      }
+    }
+
+    function addPiece(cell, color, king = false) {
+      const piece = document.createElement('div');
+      piece.classList.add('piece', color);
+      if (king) piece.classList.add('king');
+      cell.appendChild(piece);
+    }
+
+    function onCellClick(e) {
+      const cell = e.currentTarget;
+      const piece = cell.querySelector('.piece');
+
+      if (piece && piece.classList.contains(turn)) {
+        clearSelection();
+        selectedPiece = piece;
+        piece.classList.add('selected');
+      } else if (!piece && selectedPiece) {
+        const fromCell = selectedPiece.parentElement;
+        const fromRow = parseInt(fromCell.dataset.row);
+        const fromCol = parseInt(fromCell.dataset.col);
+        const toRow = parseInt(cell.dataset.row);
+        const toCol = parseInt(cell.dataset.col);
+
+        const jumpAvailable = playerMustJump(turn);
+        const isJumpMove = isJump(fromRow, fromCol, toRow, toCol);
+
+        if (isValidMove(fromRow, fromCol, toRow, toCol, jumpAvailable)) {
+          const jump = isJumpMove;
+          cell.appendChild(selectedPiece);
+          maybeKing(selectedPiece, toRow);
+
+          if (jump) {
+            const midRow = (fromRow + toRow) / 2;
+            const midCol = (fromCol + toCol) / 2;
+            const midCell = getCell(midRow, midCol);
+            midCell.innerHTML = '';
+
+            if (hasAvailableJumps(toRow, toCol, selectedPiece)) {
+              clearSelection();
+              selectedPiece.classList.add('selected');
+              return; // continue jumping
+            }
+          }
+
+          clearSelection();
+          selectedPiece = null;
+          turn = turn === 'red' ? 'black-piece' : 'red';
+        }
+      }
+    }
+
+    function isValidMove(fr, fc, tr, tc, jumpRequired = false) {
+      const piece = selectedPiece;
+      const color = piece.classList.contains('red') ? 'red' : 'black-piece';
+      const dir = (color === 'red') ? -1 : 1;
+      const isKing = piece.classList.contains('king');
+      const rowDiff = tr - fr;
+      const colDiff = tc - fc;
+
+      if (Math.abs(colDiff) !== Math.abs(rowDiff)) return false;
+      if (!isKing && ((color === 'red' && rowDiff !== -1 && rowDiff !== -2) || (color === 'black-piece' && rowDiff !== 1 && rowDiff !== 2))) return false;
+
+      const targetCell = getCell(tr, tc);
+      if (targetCell.hasChildNodes()) return false;
+
+      if (Math.abs(rowDiff) === 2) {
+        const midRow = (fr + tr) / 2;
+        const midCol = (fc + tc) / 2;
+        const midCell = getCell(midRow, midCol);
+        if (!midCell) return false;
+        const midPiece = midCell.querySelector('.piece');
+        if (midPiece && !midPiece.classList.contains(color)) {
+          return true;
+        }
+      }
+
+      if (!jumpRequired && Math.abs(rowDiff) === 1) return true;
+      return false;
+    }
+
+    function isJump(fr, fc, tr, tc) {
+      return Math.abs(fr - tr) === 2 && Math.abs(fc - tc) === 2;
+    }
+
+    function getCell(row, col) {
+      return board.querySelector(`.cell[data-row='${row}'][data-col='${col}']`);
+    }
+
+    function maybeKing(piece, row) {
+      if ((piece.classList.contains('red') && row === 0) || (piece.classList.contains('black-piece') && row === 7)) {
+        piece.classList.add('king');
+      }
+    }
+
+    function hasAvailableJumps(row, col, piece) {
+      if (!piece || !piece.classList) return false;
+      const directions = [
+        [-2, -2], [-2, 2], [2, -2], [2, 2]
+      ];
+      const color = piece.classList.contains('red') ? 'red' : 'black-piece';
+      const isKing = piece.classList.contains('king');
+
+      for (const [dr, dc] of directions) {
+        const nr = row + dr;
+        const nc = col + dc;
+        const mr = row + dr / 2;
+        const mc = col + dc / 2;
+        const toCell = getCell(nr, nc);
+        const midCell = getCell(mr, mc);
+        if (toCell && !toCell.hasChildNodes() && midCell) {
+          const midPiece = midCell.querySelector('.piece');
+          if (midPiece && !midPiece.classList.contains(color)) {
+            if (isKing || (color === 'red' && dr < 0) || (color === 'black-piece' && dr > 0)) {
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    }
+
+    function playerMustJump(color) {
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const cell = getCell(row, col);
+          const piece = cell.querySelector('.piece');
+          if (piece && piece.classList.contains(color)) {
+            if (hasAvailableJumps(row, col, piece)) return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function clearSelection() {
+      document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+    }
+
+    createBoard();
+  </script>
+</body>
+</html>
