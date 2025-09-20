@@ -102,7 +102,7 @@
             if (hasAvailableJumps(toRow, toCol, selectedPiece)) {
               clearSelection();
               selectedPiece.classList.add('selected');
-              return; // continue jumping
+              return; // dalszy skok
             }
           }
 
@@ -165,9 +165,9 @@
       const isKing = piece.classList.contains('king');
 
       for (const [dr, dc] of directions) {
-        const nr = row + dr;
+        const nr = row + dr; //new row
         const nc = col + dc;
-        const mr = row + dr / 2;
+        const mr = row + dr / 2; //middle row
         const mc = col + dc / 2;
         const toCell = getCell(nr, nc);
         const midCell = getCell(mr, mc);
