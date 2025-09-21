@@ -24,7 +24,7 @@
     const redScoreEl = document.getElementById('redScore');
     const blackScoreEl = document.getElementById('blackScore');
 
-    //stworzenie szachownicy
+    //stworzenie szachownicy z pionkami na czarnych polach
     function createBoard() {
       board.innerHTML = '';
       for (let row = 0; row < 8; row++) {
@@ -76,11 +76,13 @@
         const jumpAvailable = playerMustJump(turn);
         const isJumpMove = isJump(fromRow, fromCol, toRow, toCol);
 
+        //Jeśli można się ruszyć, przenieś się tam
         if (isValidMove(fromRow, fromCol, toRow, toCol, jumpAvailable)) {
           const jump = isJumpMove;
           cell.appendChild(selectedPiece);
           maybeKing(selectedPiece, toRow);
 
+          //zbicie
           if (jump) {
             const midRow = (fromRow + toRow) / 2;
             const midCol = (fromCol + toCol) / 2;
@@ -95,6 +97,7 @@
                 redScoreEl.textContent = redScore;
               }
               
+              //zakończenie gry gdy 12 zbitych
               if(redScore==12){
                 document.getElementById("winnerDiv").style.visibility="visible";
                 document.getElementById("winner").innerHTML="CZERWONYCH!";
@@ -107,14 +110,15 @@
             }
             midCell.innerHTML = '';
 
+            //dalsze bicie
             if (hasAvailableJumps(toRow, toCol, selectedPiece)) {
               clearSelection();
               selectedPiece.classList.add('selected');
-              return; // dalszy skok
+              return;
             }
           }
 
-          //usuwanie zaznaczenia
+          //usuwanie zaznaczenia i zmiana kolejki
           clearSelection();
           selectedPiece = null;
           turn = turn === 'red' ? 'black-piece' : 'red';
@@ -131,6 +135,7 @@
       const rowDiff = tr - fr;
       const colDiff = tc - fc;
 
+      //różnica w rzędach i kolumnach musi być taka sama
       if (Math.abs(colDiff) !== Math.abs(rowDiff)) return false;
       if (!isKing && ((color === 'red' && rowDiff !== -1 && rowDiff !== -2) || (color === 'black-piece' && rowDiff !== 1 && rowDiff !== 2))) return false;
 
