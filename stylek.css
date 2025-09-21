@@ -1,57 +1,57 @@
 body {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    background: #f0f0f0;
-    font-size: 250%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background: #f0f0f0;
+  font-size: 250%;
 }
 #winnerDiv{
-    visibility: hidden; 
-    position: fixed; 
-    background-color: rgba(245, 245, 220, 0.7); 
-    border: 4px solid black;
+  visibility: hidden; 
+  position: fixed; 
+  background-color: rgba(245, 245, 220, 0.7); 
+  border: 4px solid black;
 }
-    .scoreboard {
-      margin-bottom: 20px;
-      font-size: 40px;
-      font-weight: bold;
-    }
-    .board {
-      display: grid;
-      grid-template-columns: repeat(8, 100px);
-      grid-template-rows: repeat(8, 100px);
-      border: 2px solid #333;
-    }
-    .cell {
-      width: 100px;
-      height: 100px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .black {
-      background-color: #769656;
-    }
-    .white {
-      background-color: #eeeed2;
-    }
-    .piece {
-      width: 75px;
-      height: 75px;
-      border-radius: 50%;
-    }
-    .red {
-      background-color: red;
-    }
-    .black-piece {
-      background-color: black;
-    }
-    .selected {
-      outline: 3px solid yellow;
-    }
-    .king {
-      border: 3px solid gold;
-    }
+.scoreboard {
+  margin-bottom: 20px;
+  font-size: 40px;
+  font-weight: bold;
+}
+.board {
+  display: grid;
+  grid-template-columns: repeat(8, 100px);
+  grid-template-rows: repeat(8, 100px);
+  border: 2px solid #333;
+}
+.cell {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.black {
+  background-color: #769656;
+}
+.white {
+  background-color: #eeeed2;
+}
+.piece {
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+}
+.red {
+  background-color: red;
+}
+.black-piece {
+  background-color: black;
+}
+.selected {
+  outline: 3px solid yellow;
+}
+.king {
+  border: 3px solid gold;
+}
