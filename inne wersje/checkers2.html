@@ -14,7 +14,7 @@
   <div class="board" id="board"></div>
 
   <script>
-    //początkowe deklaracje
+    //zmienne globalne
     const board = document.getElementById('board');
     let selectedPiece = null;
     let turn = 'red';
@@ -24,6 +24,7 @@
     const redScoreEl = document.getElementById('redScore');
     const blackScoreEl = document.getElementById('blackScore');
 
+    //stworzenie szachownicy z pionkami na czarnych polach
     function createBoard() {
       board.innerHTML = '';
       for (let row = 0; row < 8; row++) {
@@ -32,8 +33,6 @@
           cell.classList.add('cell');
           const isBlack = (row + col) % 2 == 1;
           cell.classList.add(isBlack ? 'black' : 'white');
-
-          //dane o customowych atrybutach
           cell.dataset.row = row;
           cell.dataset.col = col;
 
@@ -46,6 +45,7 @@
       }
     }
 
+    //stworzenie pionków
     function addPiece(cell, color, king = false) {
       const piece = document.createElement('div');
       piece.classList.add('piece', color);
@@ -53,18 +53,19 @@
       cell.appendChild(piece);
     }
 
+    //kliknięcie na pola
+    //e = event object
     function onCellClick(e) {
-      //znajdujemy komórkę
       const cell = e.currentTarget;
       const piece = cell.querySelector('.piece');
 
-      //jeśli jest pionek i jest kolejka tego, selectuje pionka
+      //jest pionek w polu i należy do gracza z ruchem
       if (piece && piece.classList.contains(turn)) {
         clearSelection();
         selectedPiece = piece;
         piece.classList.add('selected');
-
-      //jeśli naciśnięto na pustą komórkę i pionek był wybrany
+      
+      //kliknięte pole jest puste i jest wybrany pionek
       } else if (!piece && selectedPiece) {
         const fromCell = selectedPiece.parentElement;
         const fromRow = parseInt(fromCell.dataset.row);
@@ -72,29 +73,21 @@
         const toRow = parseInt(cell.dataset.row);
         const toCol = parseInt(cell.dataset.col);
 
-        //sprawdza najpierw czy można zbić
         const jumpAvailable = playerMustJump(turn);
-
-        //czy skok jest o 2
         const isJumpMove = isJump(fromRow, fromCol, toRow, toCol);
 
-        //czy dany ruch jest prawidłowy
+        //Jeśli można się ruszyć, przenieś się tam
         if (isValidMove(fromRow, fromCol, toRow, toCol, jumpAvailable)) {
           const jump = isJumpMove;
-          //przesuwamy pionka
           cell.appendChild(selectedPiece);
-
           maybeKing(selectedPiece, toRow);
 
-         //jeśli ruch jest zbiciem
+          //zbicie
           if (jump) {
-            //znajdujemy pionka zbijanego pomiędzy naszym pionkiem 
             const midRow = (fromRow + toRow) / 2;
             const midCol = (fromCol + toCol) / 2;
             const midCell = getCell(midRow, midCol);
             const capturedPiece = midCell.querySelector('.piece');
-
-            //podliczanie wyniku
             if (capturedPiece) {
               if (capturedPiece.classList.contains('red')) {
                 blackScore++;
@@ -104,6 +97,7 @@
                 redScoreEl.textContent = redScore;
               }
               
+              //zakończenie gry gdy 12 zbitych
               if(redScore==12){
                 document.getElementById("winnerDiv").style.visibility="visible";
                 document.getElementById("winner").innerHTML="CZERWONYCH!";
@@ -114,18 +108,17 @@
               }
               
             }
-            //usuwamy środkowego pionka
             midCell.innerHTML = '';
 
-            //sprawdzamy czy jest możliwość kolejnego skoku
+            //dalsze bicie
             if (hasAvailableJumps(toRow, toCol, selectedPiece)) {
               clearSelection();
               selectedPiece.classList.add('selected');
-              //returnujemy zanim ten pionek jest zdeselectowany i kolejka nie przechodzi na przeciwnika żeby skakać dalej
               return;
             }
           }
 
+          //usuwanie zaznaczenia i zmiana kolejki
           clearSelection();
           selectedPiece = null;
           turn = turn === 'red' ? 'black-piece' : 'red';
@@ -133,7 +126,7 @@
       }
     }
 
-    //sprawdza czy ruch jest legalny: from - to 
+    //sprawdzenie możliwych ruchów
     function isValidMove(fr, fc, tr, tc, jumpRequired = false) {
       const piece = selectedPiece;
       const color = piece.classList.contains('red') ? 'red' : 'black-piece';
@@ -142,15 +135,13 @@
       const rowDiff = tr - fr;
       const colDiff = tc - fc;
 
+      //różnica w rzędach i kolumnach musi być taka sama
       if (Math.abs(colDiff) !== Math.abs(rowDiff)) return false;
-      //sprawdza czy czerwone ruszają się w kierunku czarnych a nie w drugą stronę i pozwala na ruch tylko o 1 albo o 2
       if (!isKing && ((color === 'red' && rowDiff !== -1 && rowDiff !== -2) || (color === 'black-piece' && rowDiff !== 1 && rowDiff !== 2))) return false;
 
-      //target cell ma istnieć i być pusta
       const targetCell = getCell(tr, tc);
       if (targetCell.hasChildNodes()) return false;
 
-      //sprawdza czy jest pionek różnego koloru pomiędzy
       if (Math.abs(rowDiff) === 2) {
         const midRow = (fr + tr) / 2;
         const midCol = (fc + tc) / 2;
@@ -162,26 +153,28 @@
         }
       }
 
-      //zwykły ruch
       if (!jumpRequired && Math.abs(rowDiff) === 1) return true;
       return false;
     }
 
-    //sprawdza czy skok jest o 2, ABS
+    //czy ruch to zbicie, true = ruch to zbicie, false = zwykły ruch
     function isJump(fr, fc, tr, tc) {
       return Math.abs(fr - tr) === 2 && Math.abs(fc - tc) === 2;
     }
 
+    //pobranie pola
     function getCell(row, col) {
       return board.querySelector(`.cell[data-row='${row}'][data-col='${col}']`);
     }
 
+    //czy król
     function maybeKing(piece, row) {
       if ((piece.classList.contains('red') && row === 0) || (piece.classList.contains('black-piece') && row === 7)) {
         piece.classList.add('king');
       }
     }
 
+    //czy może wykonać zbicie
     function hasAvailableJumps(row, col, piece) {
       if (!piece || !piece.classList) return false;
       const directions = [
@@ -191,14 +184,12 @@
       const isKing = piece.classList.contains('king');
 
       for (const [dr, dc] of directions) {
-        const nr = row + dr;
+        const nr = row + dr; //new row
         const nc = col + dc;
-        const mr = row + dr / 2;
+        const mr = row + dr / 2; //middle row
         const mc = col + dc / 2;
         const toCell = getCell(nr, nc);
         const midCell = getCell(mr, mc);
-
-        //sprawdza czy toCell istnieje i jest puste oraz cell pomiędzy ma pionka przeciwnego koloru
         if (toCell && !toCell.hasChildNodes() && midCell) {
           const midPiece = midCell.querySelector('.piece');
           if (midPiece && !midPiece.classList.contains(color)) {
@@ -211,7 +202,7 @@
       return false;
     }
 
-    //sprawdza czy gracz w danej kolejce ma możliwość zbicia, jeśli tak jest on zmuszony do bicia
+    //wymuszenie bicia
     function playerMustJump(color) {
       for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
@@ -225,6 +216,7 @@
       return false;
     }
 
+    //usuwanie zaznaczenia
     function clearSelection() {
       document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
     }
