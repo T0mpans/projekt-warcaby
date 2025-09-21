@@ -14,6 +14,7 @@
   <div class="board" id="board"></div>
 
   <script>
+    //zmienne globalne
     const board = document.getElementById('board');
     let selectedPiece = null;
     let turn = 'red';
@@ -23,6 +24,7 @@
     const redScoreEl = document.getElementById('redScore');
     const blackScoreEl = document.getElementById('blackScore');
 
+    //stworzenie szachownicy
     function createBoard() {
       board.innerHTML = '';
       for (let row = 0; row < 8; row++) {
@@ -43,6 +45,7 @@
       }
     }
 
+    //stworzenie pionków
     function addPiece(cell, color, king = false) {
       const piece = document.createElement('div');
       piece.classList.add('piece', color);
@@ -50,14 +53,19 @@
       cell.appendChild(piece);
     }
 
+    //kliknięcie na pola
+    //e = event object
     function onCellClick(e) {
       const cell = e.currentTarget;
       const piece = cell.querySelector('.piece');
 
+      //jest pionek w polu i należy do gracza z ruchem
       if (piece && piece.classList.contains(turn)) {
         clearSelection();
         selectedPiece = piece;
         piece.classList.add('selected');
+      
+      //kliknięte pole jest puste i jest wybrany pionek
       } else if (!piece && selectedPiece) {
         const fromCell = selectedPiece.parentElement;
         const fromRow = parseInt(fromCell.dataset.row);
@@ -106,6 +114,7 @@
             }
           }
 
+          //usuwanie zaznaczenia
           clearSelection();
           selectedPiece = null;
           turn = turn === 'red' ? 'black-piece' : 'red';
@@ -113,6 +122,7 @@
       }
     }
 
+    //sprawdzenie możliwych ruchów
     function isValidMove(fr, fc, tr, tc, jumpRequired = false) {
       const piece = selectedPiece;
       const color = piece.classList.contains('red') ? 'red' : 'black-piece';
@@ -142,20 +152,24 @@
       return false;
     }
 
+    //czy ruch to zbicie, true = ruch to zbicie, false = zwykły ruch
     function isJump(fr, fc, tr, tc) {
       return Math.abs(fr - tr) === 2 && Math.abs(fc - tc) === 2;
     }
 
+    //pobranie pola
     function getCell(row, col) {
       return board.querySelector(`.cell[data-row='${row}'][data-col='${col}']`);
     }
 
+    //czy król
     function maybeKing(piece, row) {
       if ((piece.classList.contains('red') && row === 0) || (piece.classList.contains('black-piece') && row === 7)) {
         piece.classList.add('king');
       }
     }
 
+    //czy może wykonać zbicie
     function hasAvailableJumps(row, col, piece) {
       if (!piece || !piece.classList) return false;
       const directions = [
@@ -183,6 +197,7 @@
       return false;
     }
 
+    //wymuszenie bicia
     function playerMustJump(color) {
       for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
@@ -196,6 +211,7 @@
       return false;
     }
 
+    //usuwanie zaznaczenia
     function clearSelection() {
       document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
     }
