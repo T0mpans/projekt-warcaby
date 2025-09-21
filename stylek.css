@@ -7,6 +7,7 @@ body {
   margin: 0;
   background: #f0f0f0;
   font-size: 250%;
+  background-image: url('tlo-menu.jpg');
 }
 #winnerDiv{
   visibility: hidden; 
@@ -16,8 +17,10 @@ body {
 }
 .scoreboard {
   margin-bottom: 20px;
-  font-size: 40px;
+  font-size: 60px;
   font-weight: bold;
+  padding: 10px;
+  background-color: beige
 }
 .board {
   display: grid;
